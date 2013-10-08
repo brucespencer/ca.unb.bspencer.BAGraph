@@ -136,6 +136,7 @@ public class BAGraph {
 		BAGraph g = new BAGraph(graphSize);
 //		System.out.println("Graph is " + g);
 		System.out.println(g.BAStats());
+		System.out.println("end");
 	}
 	
 	
