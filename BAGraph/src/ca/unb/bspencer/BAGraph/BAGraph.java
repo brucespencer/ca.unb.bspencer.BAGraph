@@ -30,17 +30,17 @@ public class BAGraph {
 		}	
 	}
 	
-	HashMap nodes = new HashMap();
+	HashMap<Integer,HashMap<Integer, Edge>> nodes = new HashMap<Integer, HashMap<Integer, Edge>>();
 	int edgeCount;
 	Random r = new Random();
 	
 	void insertEdge(Edge e){
-		HashMap nodeList = (HashMap) nodes.get(e.from);
-		if (nodeList == null) {
-			nodes.put(e.from, new HashMap());
-			nodeList = (HashMap) nodes.get(e.from);
+		HashMap<Integer, Edge> edgeHash = (HashMap<Integer,Edge>) nodes.get(e.from);
+		if (edgeHash == null) {
+			nodes.put(e.from, new HashMap<Integer, Edge>());
+			edgeHash = (HashMap<Integer, Edge>) nodes.get(e.from);
 		}
-		nodeList.put(e.to, e);
+		edgeHash.put(e.to, e);
 		edgeCount++;
 	}
 	
@@ -58,12 +58,12 @@ public class BAGraph {
 
 			Iterator nIt = nodes.entrySet().iterator();
 			Map.Entry pair = (Map.Entry) nIt.next(); //we know there is at least one edge
-			HashMap nodeList = (HashMap) pair.getValue();
-			int partSum = nodeList.size();
+			HashMap edgeHash = (HashMap) pair.getValue();
+			int partSum = edgeHash.size();
 			while (probe > partSum){
-				pair = (Map.Entry) nIt.next();
-				nodeList = (HashMap) pair.getValue();
-				partSum += nodeList.size();
+				pair = (Map.Entry<Integer,HashMap>) nIt.next();
+				edgeHash = (HashMap) pair.getValue();
+				partSum += edgeHash.size();
 			}
 			Integer from = new Integer(i);
 			Integer to = new Integer( (Integer) pair.getKey() );
@@ -77,8 +77,8 @@ public class BAGraph {
 		Iterator nIt = nodes.entrySet().iterator();
 		while(nIt.hasNext()){
 			Map.Entry pair = (Map.Entry) nIt.next();
-			HashMap nodeList = (HashMap) pair.getValue();
-			int size = nodeList.size();
+			HashMap edgeHash = (HashMap) pair.getValue();
+			int size = edgeHash.size();
 			result += pair.getKey() + " -> " + pair.getValue() + "<size = " + size + ">" + "; ";
 		}	
 		return result;
@@ -103,8 +103,8 @@ public class BAGraph {
 		l.add(new Counter(0));
 		while(nIt.hasNext()){
 			Map.Entry pair = (Map.Entry) nIt.next();
-			HashMap nodeList = (HashMap) pair.getValue();
-			int count = nodeList.size();
+			HashMap edgeHash = (HashMap) pair.getValue();
+			int count = edgeHash.size();
 			if(l.size() <= count)
 				l.add(new Counter(1));
 			else
@@ -136,7 +136,7 @@ public class BAGraph {
 		BAGraph g = new BAGraph(graphSize);
 //		System.out.println("Graph is " + g);
 		System.out.println(g.BAStats());
-		System.out.println("end"); 
+//		System.out.println("end"); 
 	}
 	
 	
