@@ -4,6 +4,8 @@ package ca.unb.bspencer.BAGraph;
 import java.util.*;
 
 public class BAGraph {
+	
+	static final boolean UNDIRECTED = true;
 		
 	class Edge {
 		Integer from, to;
@@ -35,10 +37,10 @@ public class BAGraph {
 	Random r = new Random();
 	
 	void insertEdge(Edge e){
-		HashMap<Integer, Edge> edgeHash = (HashMap<Integer,Edge>) nodes.get(e.from);
+		HashMap<Integer, Edge> edgeHash = nodes.get(e.from);
 		if (edgeHash == null) {
 			nodes.put(e.from, new HashMap<Integer, Edge>());
-			edgeHash = (HashMap<Integer, Edge>) nodes.get(e.from);
+			edgeHash = nodes.get(e.from);
 		}
 		edgeHash.put(e.to, e);
 		edgeCount++;
@@ -48,27 +50,42 @@ public class BAGraph {
 		edgeCount = 0;
 		if (nNodes <= 1)
 			return;
-		nodes = new HashMap();
+		nodes = new HashMap<Integer, HashMap<Integer, Edge>>();
 		insertEdge(new Edge(new Integer(0), new Integer(1)));
-	    edgeCount++;
-		
-		for(int i=2; i<nNodes; i++){			
+	    if(BAGraph.UNDIRECTED){
+	    	insertEdge(new Edge(new Integer(1), new Integer(0)));
+	    }
+		for(int i=2; i<nNodes; i++){	
+//			System.out.println("Graph is " + this);
 //			insert nodes by preferential attachment
 			int probe = r.nextInt(edgeCount); 
-
+//			System.out.println("probe " + probe);
+//			System.out.println("edgeCount " + edgeCount);
+			//we know there are at least two nodes and one edge
 			Iterator nIt = nodes.entrySet().iterator();
-			Map.Entry pair = (Map.Entry) nIt.next(); //we know there is at least one edge
-			HashMap edgeHash = (HashMap) pair.getValue();
+			Map.Entry<Integer, HashMap> pair = (Map.Entry<Integer, HashMap>) nIt.next(); 
+			HashMap<Integer, Edge> edgeHash = pair.getValue();
 			int partSum = edgeHash.size();
+//			System.out.println("node " + pair.getKey());
+//			System.out.println("edgeHash " + edgeHash);
+//			System.out.println("probe " + probe);
+//			System.out.println("partSum " + partSum);
 			while (probe > partSum){
 				pair = (Map.Entry<Integer,HashMap>) nIt.next();
-				edgeHash = (HashMap) pair.getValue();
+				edgeHash = pair.getValue();
 				partSum += edgeHash.size();
+//				System.out.println("node " + pair.getKey());
+//				System.out.println("edgeHash " + edgeHash);
+//				System.out.println("probe " + probe);
+//				System.out.println("partSum " + partSum);
 			}
 			Integer from = new Integer(i);
-			Integer to = new Integer( (Integer) pair.getKey() );
+			Integer to = new Integer( pair.getKey() );
 			insertEdge(new Edge(from, to));
-			insertEdge(new Edge(to, from));
+			if(BAGraph.UNDIRECTED){
+				insertEdge(new Edge(to, from));
+		    }
+			
 		}
 	}
 	
@@ -99,7 +116,7 @@ public class BAGraph {
 	
 	public String BAStats(){
 		Iterator nIt = nodes.entrySet().iterator();
-		ArrayList l = new ArrayList();
+		ArrayList<Counter> l = new ArrayList<Counter>();
 		l.add(new Counter(0));
 		while(nIt.hasNext()){
 			Map.Entry pair = (Map.Entry) nIt.next();
@@ -108,7 +125,7 @@ public class BAGraph {
 			if(l.size() <= count)
 				l.add(new Counter(1));
 			else
-				((Counter) l.get(count)).inc();
+				l.get(count).inc();
 		}
 		String result = "";
 
@@ -117,11 +134,11 @@ public class BAGraph {
 				result += " ";	
 			}
 			result += i + ":";
-			for(int j= 5; j> Math.log10( ((Counter) l.get(i)).value() ); j--){
+			for(int j= 5; j> Math.log10( l.get(i).value() ); j--){
 				result += " ";	
 			}
-			result += ((Counter) l.get(i)).value() + ":";
-			for(int j = 0; j< Math.log(((Counter) l.get(i)).value()); j++)
+			result += l.get(i).value() + ":";
+			for(int j = 0; j< Math.log(l.get(i).value()); j++)
 				result += "*";
 			result += System.getProperty("line.separator"); 
 		}
